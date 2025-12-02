@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Quiz — SumSafari{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg p-4 rounded-4" style="background: var(--soft-cream); border:none;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 style="color: var(--jungle-green);">Quiz</h3>
+      <div>
+        <strong>Time left:</strong>
+        <span id="timer">00:00</span>
+      </div>
+    </div>
+
+    <form id="quiz-form" action="{{ url_for('quiz.submit_quiz', quiz_id=quiz.quiz_id) }}" method="POST">
+      {% for q in questions %}
+      <div class="mb-4 p-3" style="background:white; border-radius:12px;">
+        <div class="d-flex justify-content-between">
+          <div>
+            <strong>Q{{ loop.index }}.</strong>
+            <span>{{ q.question_text }}</span>
+          </div>
+          {% if q.question_image %}
+          <div>
+            <img src="{{ url_for('static', filename='images/questions/' ~ q.question_image) }}"
+                 style="max-width:140px; object-fit:contain; border-radius:8px;">
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="mt-3">
+          <input type="text" name="answer_{{ q.question_id }}" placeholder="Type your answer"
+                 class="form-control form-control-lg rounded-pill answer-input" data-qid="{{ q.question_id }}">
+        </div>
+
+        <div class="mt-2 d-flex gap-2">
+          <button type="button" class="btn btn-outline-primary btn-sm check-btn" data-qid="{{ q.question_id }}">
+            Check
+          </button>
+          <div class="feedback ms-2" id="feedback-{{ q.question_id }}"></div>
+        </div>
+
+        <div class="mt-2 text-muted small" id="solution-{{ q.question_id }}" style="display:none;"></div>
+      </div>
+      {% endfor %}
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <a href="{{ url_for('student.topics') }}" class="btn btn-secondary rounded-pill">Back</a>
+        <button type="submit" class="btn btn-primary rounded-pill">Submit Quiz</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+(function(){
+  // total time in seconds (example 10 minutes) - you can make dynamic
+  const totalSeconds = 10 * 60;
+  let remaining = totalSeconds;
+  const timerEl = document.getElementById('timer');
+
+  function formatTime(s){
+    const m = Math.floor(s/60).toString().padStart(2,'0');
+    const sec = Math.floor(s%60).toString().padStart(2,'0');
+    return `${m}:${sec}`;
+  }
+
+  timerEl.textContent = formatTime(remaining);
+  const interval = setInterval(() => {
+    remaining -= 1;
+    timerEl.textContent = formatTime(remaining);
+    if (remaining <= 0) {
+      clearInterval(interval);
+      // auto-submit the form
+      document.getElementById('quiz-form').submit();
+    }
+  }, 1000);
+
+  // AJAX check handlers
+  const checkButtons = document.querySelectorAll('.check-btn');
+  if (checkButtons.length === 0) return;
+  checkButtons.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const qid = btn.dataset.qid;
+      const input = document.querySelector(`.answer-input[data-qid="${qid}"]`);
+      const answer = input.value || "";
+
+      // POST to /quiz/check_answer
+      try {
+        const resp = await fetch("{{ url_for('quiz.check_answer') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token() if csrf_token is defined else '' }}"
+          },
+          body: JSON.stringify({ question_id: qid, answer: answer })
+        });
+        const data = await resp.json();
+        const fb = document.getElementById(`feedback-${qid}`);
+        const sol = document.getElementById(`solution-${qid}`);
+        if (data.error) {
+          fb.innerHTML = '<span style="color:#c0392b">Error</span>';
+          return;
+        }
+        if (data.is_correct) {
+          fb.innerHTML = '<span style="color:green; font-weight:700">Correct ✓</span>';
+          sol.style.display = "none";
+        } else {
+          fb.innerHTML = '<span style="color:#c0392b; font-weight:700">Incorrect ✗</span>';
+          sol.style.display = "block";
+          sol.innerHTML = `<strong>Correct:</strong> ${data.correct_answer}<br><small>${data.solution_notes}</small>`;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}
+{% endblock %}

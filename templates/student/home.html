@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+
+    <!-- Flash messages -->
+      <!-- {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} text-center py-2">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% endwith %} -->
+
+    <h2 class="mb-4">Welcome, {{ name }}</h2>
+
+    <div class="row g-4">
+
+        <!-- Chat with AI Tutor -->
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-3 h-100">
+                <img src="/static/images/zebrahead.png" class="card-img-top mx-auto"
+                     style="width: 120px;" alt="Chat Icon">
+                <div class="card-body">
+                    <h5 class="card-title">Chat with Tambo</h5>
+                    <p class="card-text">Ask the AI tutor questions and get instant explanations.</p>
+                    <a href="{{ url_for('chat.chatbot_page') }}" class="btn btn-primary">Start Chat</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Take Quiz -->
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-3 h-100">
+                <img src="/static/images/quiz.jpg" class="card-img-top mx-auto"
+                     style="width: 200px;" alt="Quiz Icon">
+                <div class="card-body">
+                    <h5 class="card-title">Take Quiz</h5>
+                    <p class="card-text">Choose a topic and start your assessment.</p>
+                    <a href="{{ url_for('student.topics') }}" class="btn btn-success">Select Topic</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Progress -->
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-3 h-100">
+                <img src="/static/images/progress.jpg" class="card-img-top mx-auto"
+                     style="width: 200px;" alt="Progress Icon">
+                <div class="card-body">
+                    <h5 class="card-title">View Progress</h5>
+                    <p class="card-text">Track improvements and weak areas.</p>
+                    <a href="{{ url_for('student.progress') }}" class="btn btn-info">View Progress</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

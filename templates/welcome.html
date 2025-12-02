@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}SumSafari — Join the SumSafari!{% endblock %}
+
+{% block content %}
+  <div class="row align-items-center hero-row">
+    <!-- left column: text content -->
+    <div class="col-lg-7 col-md-7 col-12 hero-text-col">
+      <h2 class="display-title">Join the <span class="accent-text">SumSafari</span>!</h2>
+      <p class="lead hero-sub">
+        Explore math concepts for PSAC curriculum with friendly animal guides — step-by-step explanations and notes,
+        quizzes and progress tracking.
+      </p>
+
+      <div class="d-flex gap-3 align-items-center mt-4">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg start-btn">Log in</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg start-btn">Sign up</a>
+      </div>
+
+      <!-- small decorative leaves -->
+      <div class="decor-leaves d-none d-lg-block" aria-hidden="true">
+        <svg width="220" height="90" viewBox="0 0 220 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- decorative ellipses kept intentionally empty (design placeholder) -->
+        </svg>
+      </div>
+    </div>
+
+    <!-- right column: mascot -->
+    <div class="col-lg-5 col-md-5 col-12 text-center hero-mascot-col">
+      <div class="mascot-wrapper position-relative d-inline-block">
+        <img src="{{ url_for('static', filename='images/zebra.png') }}" alt="SumSafari Zebra Mascot"
+             class="mascot-img position-relative" width="400">
+      </div>
+    </div>
+  </div>
+{% endblock %}

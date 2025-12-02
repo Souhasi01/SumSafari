@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Login — SumSafari{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6 col-lg-5">
+
+    <div class="card shadow-lg p-4 rounded-4" style="background: var(--soft-cream); border: none;opacity: 0.9;">
+      <h2 class="text-center mb-4" style="color: var(--jungle-green);">Log in</h2>
+
+      <form action="{{ url_for('auth.login') }}" method="POST">
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Email address</label>
+          <input type="email" name="email" class="form-control form-control-lg rounded-pill"
+            placeholder="Enter your email" required>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3 position-relative">
+          <label class="form-label fw-bold">Password</label>
+
+          <input type="password" id="password" name="password" class="form-control form-control-lg rounded-pill pe-5"
+            placeholder="Enter your password" required>
+
+          <i class="bi bi-eye" id="togglePassword" style="position:absolute; right:20px; top:70%; transform:translateY(-50%);
+            cursor:pointer; font-size:1.3rem; color:#555;"></i>
+        </div>
+
+        <!-- Role -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Login as</label>
+          <select name="role" class="form-select form-select-lg rounded-pill" required>
+            <option value="student">Student</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <!-- Submit -->
+        <button class="btn btn-primary w-100 mt-3 start-btn" style="font-size: 1.1rem;">
+          Log in
+        </button>
+      </form>
+
+      <p class="text-center mt-3">
+        Don’t have an account?
+        <a href="{{ url_for('auth.register') }}" class="fw-bold" style="text-decoration: none;">Sign up</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById("togglePassword").addEventListener("click", function () {
+    const pwd = document.getElementById("password");
+    const type = pwd.type === "password" ? "text" : "password";
+    pwd.type = type;
+
+    this.classList.toggle("bi-eye");
+    this.classList.toggle("bi-eye-slash");
+});
+</script>
+{% endblock %}

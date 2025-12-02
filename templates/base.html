@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}SumSafari{% endblock %}</title>
+
+  <!-- Bootstrap CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+
+  <!-- Custom styles (do not modify this file) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+  {% block head %}{% endblock %}
+</head>
+
+<body class="page-bg">
+
+  <!-- Background video (keeps same styling as your welcome page) -->
+  <video autoplay muted loop playsinline id="bg-video">
+    <source src="{{ url_for('static', filename='videos/background.mp4') }}" type="video/mp4">
+  </video>
+
+  <header class="container py-4">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-3">
+        <div class="logo-circle d-flex align-items-center justify-content-center">
+          <img src="{{ url_for('static', filename='images/zebrahead.png') }}" alt="SumSafari Logo" class="logo-img">
+        </div>
+        <h1 class="brand-title mb-0">SumSafari</h1>
+      </div>
+
+      <nav class="d-none d-md-flex gap-4 align-items-center">
+        <!-- <a href="{{ url_for('auth.welcome') }}" class="nav-link">Home</a> -->
+
+        {% if session.get('user_id') %}
+          {% if session.get('user_role') == 'admin' %}
+            <a href="{{ url_for('admin.admin_home') }}" class="nav-link">Admin Dashboard</a>
+          {% else %}
+            <a href="{{ url_for('student.student_home') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('student.profile') }}" class="nav-link">Profile</a>
+          {% endif %}
+          <a href="{{ url_for('auth.logout') }}" class="nav-link">Log out</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="nav-link">Log in</a>
+          <a href="{{ url_for('auth.register') }}" class="nav-link">Sign up</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container py-5 text-center">
+    <small class="text-muted">© SumSafari — Explore maths at PSAC Level with friendly animal guides</small>
+  </footer>
+
+  <!-- Bootstrap JS (bundle includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

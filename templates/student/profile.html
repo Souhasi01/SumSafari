@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}My Profile — SumSafari{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6 col-lg-5">
+
+    <!-- Flash messages -->
+      <!-- {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} text-center py-2">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% endwith %} -->
+
+    <div class="card shadow-lg p-4 rounded-4" style="background: var(--soft-cream); border: none;opacity: 0.9;">
+      <h2 class="text-center mb-4" style="color: var(--jungle-green);">My Profile</h2>
+
+      <form action="{{ url_for('student.profile') }}" method="POST">
+
+        <!-- Full Name -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Full Name</label>
+          <input type="text"
+                 name="full_name"
+                 class="form-control form-control-lg rounded-pill"
+                 value="{{ user.full_name }}"
+                 required>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">New Password</label>
+          <input type="password"
+                 name="password"
+                 class="form-control form-control-lg rounded-pill"
+                 placeholder="Leave blank to keep current">
+        </div>
+
+        <button class="btn btn-primary w-100 mt-3 start-btn" style="font-size: 1.1rem;">
+          Update Profile
+        </button>
+      </form>
+
+      <p class="text-center mt-3">
+        <a href="{{ url_for('student.student_home') }}" class="fw-bold"  style="text-decoration: none; color: var(--jungle-green);">Back to Home</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

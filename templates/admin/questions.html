@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Manage Questions — Admin{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+  <!-- Add Question Form -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6 col-lg-5">
+
+      <div class="card shadow-lg p-4 rounded-4" style="background: var(--soft-cream); border: none;">
+        <h2 class="text-center mb-4" style="color: var(--jungle-green);">Add Question</h2>
+
+        <form action="{{ url_for('admin.add_question') }}" method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Select Topic</label>
+            <select name="topic_id" class="form-control form-control-lg rounded-pill" required>
+              {% for t in topics %}
+              <option value="{{ t.topic_id }}">{{ t.topic_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Question</label>
+            <input type="text" name="question_text" class="form-control form-control-lg rounded-pill"
+              placeholder="Enter question" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Correct Answer</label>
+            <input type="text" name="correct_answer" class="form-control form-control-lg rounded-pill"
+              placeholder="Enter correct answer" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Difficulty</label>
+            <select name="difficulty" class="form-control form-control-lg rounded-pill">
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Solution Notes</label>
+            <input type="text" name="solution_notes" class="form-control form-control-lg rounded-pill"
+              placeholder="Enter solution notes">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Question Image (optional)</label>
+            <input type="file" name="question_image" class="form-control form-control-lg rounded-pill">
+          </div>
+
+          <button class="btn btn-primary w-100 mt-2 rounded-pill" style="font-size: 1.1rem;">
+            Add Question
+          </button>
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+
+  <h3 class="text-center mb-4" style="color: black;">Existing Questions</h3>
+
+  <div class="row g-4 justify-content-center">
+
+    {% for topic in topics %}
+    <div class="col-md-8">
+      <div class="card shadow-lg p-3 rounded-4">
+
+        <h4 class="fw-bold" style="color: var(--jungle-green);">{{ topic.topic_name }}</h4>
+
+        {% if topic.questions %}
+        <table class="table mt-2">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Correct Answer</th>
+              <th>Difficulty</th>
+              <th>Solution Notes</th>
+              <th>Image</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for q in topic.questions %}
+            <tr>
+              <td>{{ q.question_text }}</td>
+              <td>{{ q.correct_answer }}</td>
+              <td>{{ q.difficulty }}</td>
+              <td>{{ q.solution_notes }}</td>
+              <td>
+                {% if q.question_image %}
+                <img src="{{ url_for('static', filename='images/questions/' ~ q.question_image) }}"
+                  style="max-width:80px; height:auto; object-fit:contain; border-radius:8px;">
+                {% else %}
+                —
+                {% endif %}
+              </td>
+              <td>
+                <form action="{{ url_for('admin.delete_question', q_id=q.question_id) }}" method="POST">
+                  <button class="btn btn-danger btn-sm rounded-pill">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% else %}
+        <p class="text-center mt-2 fw-bold">No questions added yet.</p>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+
+{% endblock %}

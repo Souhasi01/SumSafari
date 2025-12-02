@@ -1,0 +1,16 @@
+# Python environment
+venv/
+.venv/
+
+# IDE
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Flask instance uploads
+instance/
+
+# SQLite (if used)
+*.db

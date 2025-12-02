@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Quiz Result — SumSafari{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg p-4 rounded-4" style="background: var(--soft-cream); border:none;">
+    <h2 class="text-center mb-3" style="color: var(--jungle-green);">Quiz Result</h2>
+
+    <div class="text-center mb-3">
+      <p><strong>Score:</strong> {{ quiz.score }} / {{ quiz.total_questions }}</p>
+      <p><strong>Started:</strong> {{ quiz.started_at }} &nbsp; <strong>Completed:</strong> {{ quiz.completed_at }}</p>
+    </div>
+
+    <h4 class="mt-3" style="color: var(--jungle-green);">Per-topic performance</h4>
+    {% if per_topic %}
+      <div class="row g-3 mt-2">
+        {% for t in per_topic %}
+        <div class="col-md-6">
+          <div class="card p-3" style="border-radius:12px;">
+            <h5 class="mb-1">{{ t.topic_name }}</h5>
+            <p class="mb-1">Accuracy: {{ t.accuracy }}%</p>
+            <p class="mb-1">Correct: {{ t.correct }} / {{ t.total }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="fw-bold">No per-topic data available.</p>
+    {% endif %}
+
+    <hr class="my-4">
+
+    <h4 style="color: var(--jungle-green);">Badges</h4>
+    {% if badges %}
+      <div class="d-flex gap-3 flex-wrap mt-2">
+        {% for b in badges %}
+        <div class="text-center p-2" style="background:white; border-radius:12px;">
+          <img src="{{ url_for('static', filename='images/badges/' ~ b.icon_path) }}" style="width:80px; height:80px; object-fit:contain;">
+          <div class="mt-1 fw-bold">{{ b.badge_name }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="fw-bold mt-2">No badges earned yet.</p>
+    {% endif %}
+
+    <div class="mt-4 d-flex justify-content-between">
+      <a href="{{ url_for('student.topics') }}" class="btn btn-secondary rounded-pill">Take another quiz</a>
+      <a href="{{ url_for('student.student_home') }}" class="btn btn-primary rounded-pill">Back to Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
