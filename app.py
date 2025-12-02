@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template
 from config import Config
 from extensions import db, bcrypt  # <- import from extensions
@@ -24,13 +25,19 @@ def create_app():
     app.register_blueprint(chat_bp)
 
     # Create all tables
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
 
     # Keep your home route
     @app.route("/")
     def home():
         return render_template("welcome.html")
+    
+     # Optional: only create tables if running locally
+    if os.environ.get("FLASK_ENV") != "production":
+        with app.app_context():
+            db.create_all()
+
 
     return app
 
