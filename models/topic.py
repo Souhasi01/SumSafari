@@ -6,4 +6,3 @@ class Topic(db.Model):
     topic_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     topic_name = db.Column(db.String(150), nullable=False)
     topic_image = db.Column(db.String(255), nullable=True)
-    questions = db.relationship("Question", backref="topic", lazy=True)

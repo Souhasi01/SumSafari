@@ -4,61 +4,42 @@
 {% block content %}
 <div class="container mt-5">
 
-    <h2 class="text-center mb-4" style="color: var(--jungle-green);">
-        Choose Topics for Your Quiz
-    </h2>
+<h2 class="text-center mb-4" style="color: black;">
+Choose a Topic For Your Quiz
+</h2>
 
-    <div class="card shadow-lg p-4 rounded-4"
-         style="background: var(--soft-cream); border:none; opacity:0.95;">
-        
-        <form method="POST" action="{{ url_for('quiz.start_quiz') }}">
+<div class="row g-4">
+{% for topic in topics %}
+<div class="col-md-4">
+<div class="card shadow-sm p-3 text-center rounded-4">
 
-            <div class="row g-4">
-                {% for topic in topics %}
-                <div class="col-md-4">
-                    <label class="card shadow-sm p-3 text-center rounded-4"
-                           style="cursor:pointer; background:white; display: grid; place-items: center;">
-                        <input type="checkbox" name="topics"
-                               value="{{ topic.topic_id }}"
-                               class="form-check-input me-2">
-                        <img src="{{ url_for('static', filename='images/topics/' ~ topic.topic_image) }}"
-                             style="width:100px;" class="mb-2" alt="{{ topic.topic_name }}">
-                        <h5 class="fw-bold" style="color: var(--jungle-green);">
-                            {{ topic.topic_name }}
-                        </h5>
-                    </label>
-                </div>
-                {% endfor %}
-            </div>
+<img src="{{ url_for('static', filename='images/topics/' ~ topic.topic_image) }}"
+     style="width:100px; display:block; margin: 0 auto;" class="mb-2">
 
-            <hr class="my-4">
+<h5 class="fw-bold">{{ topic.topic_name }}</h5>
 
-            <h4 class="text-center mb-3" style="color: black;">Select Difficulty</h4>
+<a href="{{ url_for('quiz.start_quiz', topic_id=topic.topic_id) }}"
+   class="btn btn-success mt-2">
+Start
+</a>
 
-            <div class="text-center">
-                <select name="difficulty"
-                        class="form-select form-select-lg rounded-pill w-50 mx-auto">
-                    <option value="mixed">Mixed</option>
-                    <option value="easy">Easy Only</option>
-                    <option value="medium">Medium Only</option>
-                    <option value="hard">Hard Only</option>
-                </select>
-            </div>
+</div>
+</div>
+{% endfor %}
+</div>
 
-            <button class="btn btn-primary w-100 mt-4 start-btn"
-                    style="font-size:1.2rem;">
-                Start Quiz
-            </button>
-        </form>
+<hr class="my-5">
+<div class="p-4 rounded-4" style="background-color: #E0F7FA;">
+<h4 class="text-center mb-3">
+Test Yourself with Examination-style Questions
+</h4>
 
-        <p class="text-center mt-3">
-            <a href="{{ url_for('student.student_home') }}"
-               style="text-decoration:none; color:var(--jungle-green);">
-               Back to Home
-            </a>
-        </p>
-
-    </div>
-
+<div class="text-center">
+<a href="{{ url_for('quiz.start_quiz') }}"
+   class="btn btn-primary btn-lg">
+Start Mixed Quiz
+</a>
+</div>
+<div></div>
 </div>
 {% endblock %}

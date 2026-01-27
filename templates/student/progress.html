@@ -2,52 +2,187 @@
 {% block title %}Progress — SumSafari{% endblock %}
 
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <div class="container mt-5">
 
-  <h2 class="text-center mb-4" style="color: var(--jungle-green);">
-    Your Progress
-  </h2>
+  <div class="card shadow-lg p-1 rounded-1 text-center" style="background: var(--jungle-green); margin-bottom: 1rem;">
+    <h3 style="color: white">Topicwise Performance</h3>
+  </div>
+
+  <!-- Topic Accuracy Bar Chart -->
+  <div class="card shadow-lg p-4 rounded-4 mb-4">
+    <h4 class="text-center mb-3" style="color: var(--jungle-green);">
+      Accuracy per Topic
+    </h4>
+    <canvas id="topicAccuracyChart" height="120"></canvas>
+  </div>
+
 
   <!-- Progress Cards -->
-  <div class="row g-4 justify-content-center">
-    {% if summaries %}
-    {% for summary, topic_name in summaries %}
+  <div class="row g-4">
+    {% for p in progress_data %}
     <div class="col-md-5">
-      <div class="card shadow-lg p-4 rounded-4" style="background: var(--soft-cream); border: none;">
-        <h4 class="fw-bold" style="color: var(--jungle-green);">{{ topic_name }}</h4>
+      <div class="card shadow-lg p-4 rounded-4" style="background: white; border:none;">
+        <h4 style="color: var(--jungle-green);">{{ p.topic }}</h4>
 
-        <p class="mt-2"><strong>Accuracy:</strong> {{ summary.accuracy_percentage }}%</p>
-        <p><strong>Attempts:</strong> {{ summary.attempts_count }}</p>
+        <p><strong>Accuracy:</strong> {{ p.accuracy }}%</p>
+        <p><strong>Attempts:</strong> {{ p.attempts }}</p>
+        <p><strong>Badge Achieved:</strong></p>
+
+        {% if p.badge %}
+        <div class="mt-2">
+          <img src="{{ url_for('static', filename='images/badges/' ~ p.badge|replace(' ', '_') ~ '.png') }}"
+            style="width:70px;display:block; margin: 0 auto;">
+          <div class="fw-bold" style="text-align: center;">{{ p.badge }}</div>
+        </div>
+        {% else %}
+        <p class="fw-bold">No badge yet</p>
+        {% endif %}
       </div>
     </div>
-    {% endfor %}
     {% else %}
-    <p class="text-center fw-bold mt-3">No progress yet. Start taking quizzes!</p>
-    {% endif %}
+    <p class="text-center fw-bold">No Topicwise quizzes taken yet.</p>
+    {% endfor %}
   </div>
 
-  <hr class="my-5">
+  <div class="card shadow-lg p-1 rounded-1 text-center"
+    style="background: var(--jungle-green); margin-bottom: 1rem; margin-top: 1rem;">
+    <h3 style="color: white">Test Yourself Performance</h3>
+  </div>
+   
+  <!-- Test Yourself Progress Line Chart -->
+  <div class="card shadow-lg p-4 rounded-4 mb-4">
+    <h4 class="text-center mb-3" style="color: var(--jungle-green);">
+      Test Yourself Progress Over Time
+    </h4>
 
-  <!-- Badges Section -->
-  <h3 class="text-center mb-3" style="color: black;">Your Badges</h3>
+    <canvas id="testProgressChart" height="120"></canvas>
+  </div>
 
-  <div class="row g-4 justify-content-center">
-    {% if badges %}
-    {% for badge in badges %}
-    <div class="col-md-3">
-      <div class="card shadow-lg text-center p-3 rounded-4" style="background: white; border: none;">
-        <img src="{{ url_for('static', filename='images/badges/' + badge.icon_path) }}" alt="Badge" class="mx-auto mb-2"
-          style="width: 100px;">
-        <h5 class="fw-bold" style="color: var(--jungle-green);">
-          {{ badge.badge_name }}
-        </h5>
+  <!-- Test Yourself Cards -->
+  <div class="row g-4">
+    {% for t in test_data %}
+    <div class="col-md-4">
+      <div class="card shadow-lg p-4 rounded-4 text-center">
+        <p class="fw-bold">{{ t.date.strftime('%d %b %Y') }}</p>
+        <p>Score: {{ t.score }} / {{ t.total }}</p>
+        <p>Accuracy: {{ t.accuracy }}%</p>
+
+        {% if t.badge %}
+        <img src="{{ url_for('static', filename='images/badges/' ~ t.badge|replace(' ', '_') ~ '.png') }}"
+          style="width:70px;display:block; margin: 0 auto;">
+        <div class="fw-bold">{{ t.badge }}</div>
+        {% else %}
+        <p class="fw-bold">No badge</p>
+        {% endif %}
       </div>
     </div>
-    {% endfor %}
     {% else %}
-    <p class="text-center fw-bold mt-3">No badges earned yet. Keep going!</p>
-    {% endif %}
+    <p class="text-center fw-bold">No Test Yourself quizzes taken yet.</p>
+    {% endfor %}
   </div>
-
 </div>
+
+<script id="topic-data" type="application/json">
+  {{ progress_data | tojson }}
+</script>
+
+<script>
+  const TOPIC_DATA = JSON.parse(
+    document.getElementById('topic-data').textContent
+  );
+
+  const topicLabels = TOPIC_DATA.map(t => t.topic);
+  const topicAccuracy = TOPIC_DATA.map(t => t.accuracy);
+
+  /* 🎨 Auto-color logic */
+  const barColors = topicAccuracy.map(a => {
+    if (a < 50) return '#e74c3c';      // red
+    if (a < 75) return '#f1c40f';      // yellow
+    return '#2ecc71';                  // green
+  });
+
+  const topicCtx = document.getElementById('topicAccuracyChart');
+
+  if (topicCtx && topicAccuracy.length > 0) {
+    new Chart(topicCtx, {
+      type: 'bar',
+      data: {
+        labels: topicLabels,
+        datasets: [{
+          label: 'Accuracy (%)',
+          data: topicAccuracy,
+          backgroundColor: barColors,
+          borderRadius: 8,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            min: 0,
+            max: 100,
+            ticks: {
+              callback: value => value + '%'
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.raw + '% accuracy'
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+
+<script>
+  /* Flask → JS (SAFE serialization) */
+  const TEST_RESULTS = {{ test_data | tojson }};
+
+  const labels = TEST_RESULTS.map(t => t.date.slice(5, 10));
+  const accuracy = TEST_RESULTS.map(t => t.accuracy);
+
+  const ctx = document.getElementById('testProgressChart');
+
+  if (ctx && accuracy.length > 0) {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Accuracy (%)',
+          data: accuracy,
+          tension: 0.3,
+          borderWidth: 3,
+          pointRadius: 5,
+          fill: false
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            min: 0,
+            max: 100,
+            ticks: {
+              callback: function (value) {
+                return value + '%';
+              }
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+</script>
 {% endblock %}

@@ -25,8 +25,8 @@ def create_app():
     app.register_blueprint(chat_bp)
 
     # Create all tables
-    # with app.app_context():
-    #     db.create_all()
+    with app.app_context():
+        db.create_all()
 
     # Keep your home route
     @app.route("/")
@@ -43,5 +43,5 @@ def create_app():
 
 app = create_app()
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)

@@ -70,7 +70,7 @@ RULES:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": text}
             ],
-            max_output_tokens=500
+            max_output_tokens=1000
         )
 
         ai_text = response.output_text

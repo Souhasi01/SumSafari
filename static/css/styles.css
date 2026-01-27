@@ -109,8 +109,15 @@ nav .nav-link:hover { color: var(--warm-yellow); }
   .display-title { font-size: 2.4rem; }
   .brand-title { font-size: 1.6rem; }
   .hero-row { padding-top: 12px; }
-  nav { display: none !important; }
 }
+
+@media (max-width: 767px) {
+  .navbar-nav .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+  }
+}
+
 
 .mascot {
     width: 100px;
@@ -150,3 +157,14 @@ nav .nav-link:hover { color: var(--warm-yellow); }
   z-index: -1;         /* behind all content */
   /* opacity: 0.45;       adjust brightness as needed */
 }
+
+.text-correct {
+  color: green;
+  font-weight: bold;
+}
+
+.text-wrong {
+  color: #c0392b;
+  font-weight: bold;
+}
+

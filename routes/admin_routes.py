@@ -3,8 +3,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from routes.utils import admin_required
 from extensions import db
 from models.topic import Topic
-from models.question import Question
 from models.user import User
+from models.quiz import Quiz
 from models.reward_badge import RewardBadge
 from models.user_badge import UserBadge
 from models.progress_summary import ProgressSummary
@@ -63,56 +63,6 @@ def delete_topic(topic_id):
     flash("Topic deleted", "info")
     return redirect(url_for("admin.topics"))
 
-# Questions CRUD
-@admin_bp.route("/questions")
-@admin_required
-def questions():
-    topics = Topic.query.order_by(Topic.topic_name).all()
-    return render_template("admin/questions.html", topics=topics)
-
-@admin_bp.route("/questions/add", methods=["POST"])
-@admin_required
-def add_question():
-    topic_id = int(request.form.get("topic_id"))
-    question_text = request.form.get("question_text")
-    correct_answer = request.form.get("correct_answer")
-    difficulty = request.form.get("difficulty", "easy")
-    solution_notes = request.form.get("solution_notes", "")
-
-    image_file = request.files.get("question_image")
-    filename = None
-
-    # Handle image upload
-    if image_file and image_file.filename:
-        filename = secure_filename(image_file.filename)
-        upload_path = os.path.join("static", "images", "questions", filename)
-        image_file.save(upload_path)
-
-    q = Question(
-        topic_id=topic_id,
-        question_text=question_text,
-        correct_answer=correct_answer,
-        difficulty=difficulty,
-        solution_notes=solution_notes,
-        question_image=filename
-    )
-
-    db.session.add(q)
-    db.session.commit()
-
-    flash("Question added successfully!", "success")
-    return redirect(url_for("admin.questions"))
-
-
-@admin_bp.route("/questions/delete/<int:q_id>", methods=["POST"])
-@admin_required
-def delete_question(q_id):
-    q = Question.query.get_or_404(q_id)
-    db.session.delete(q)
-    db.session.commit()
-    flash("Question removed", "info")
-    return redirect(url_for("admin.questions"))
-
 # Users view
 @admin_bp.route("/users")
 @admin_required
@@ -124,30 +74,86 @@ def users():
         .all()
     )
 
-    # preload progress + badges to avoid lazy loading problems
-    summaries = {
-        u.user_id: db.session.query(Topic.topic_name,
-                                    ProgressSummary.accuracy_percentage,
-                                    ProgressSummary.attempts_count)\
-            .join(Topic, Topic.topic_id == ProgressSummary.topic_id)\
-            .filter(ProgressSummary.user_id == u.user_id).all()
-        for u in students
-    }
+    user_data = {}
 
-    badges = {
-        u.user_id: db.session.query(RewardBadge.badge_name,
-                                    RewardBadge.icon_path)\
-            .join(UserBadge, RewardBadge.badge_id == UserBadge.badge_id)\
-            .filter(UserBadge.user_id == u.user_id).all()
-        for u in students
-    }
+    for u in students:
+        # -------------------------------
+        # TOPIC PROGRESS
+        # -------------------------------
+        summaries = (
+            db.session.query(
+                Topic.topic_name,
+                ProgressSummary.accuracy_percentage,
+                ProgressSummary.attempts_count
+            )
+            .join(Topic, Topic.topic_id == ProgressSummary.topic_id)
+            .filter(ProgressSummary.user_id == u.user_id)
+            .all()
+        )
+
+        topic_progress = []
+        for topic, accuracy, attempts in summaries:
+            badge = None
+            if accuracy >= 90:
+                badge = "Accuracy Master"
+            elif accuracy >= 75:
+                badge = "Proficient"
+            elif accuracy >= 50:
+                badge = "Getting There"
+
+            topic_progress.append({
+                "topic": topic,
+                "accuracy": round(accuracy, 2),
+                "attempts": attempts,
+                "badge": badge
+            })
+
+        # -------------------------------
+        # TEST YOURSELF PERFORMANCE
+        # -------------------------------
+        tests = (
+            Quiz.query
+            .filter(
+                Quiz.user_id == u.user_id,
+                Quiz.quiz_type == "full_revision",
+                Quiz.completed_at.isnot(None),
+                Quiz.score.isnot(None)
+            )
+            .order_by(Quiz.completed_at.desc())
+            .all()
+        )
+
+        test_data = []
+        for q in tests:
+            accuracy = (q.score / q.total_questions) * 100
+
+            badge = None
+            if accuracy >= 90:
+                badge = "Accuracy Master"
+            elif accuracy >= 75:
+                badge = "Proficient"
+            elif accuracy >= 50:
+                badge = "Getting There"
+
+            test_data.append({
+                "date": q.completed_at,
+                "score": q.score,
+                "total": q.total_questions,
+                "accuracy": round(accuracy, 2),
+                "badge": badge
+            })
+
+        user_data[u.user_id] = {
+            "topic_progress": topic_progress,
+            "test_data": test_data
+        }
 
     return render_template(
         "admin/users.html",
         users=students,
-        summaries=summaries,
-        badges=badges
+        user_data=user_data
     )
+
 
 # Badges CRUD
 @admin_bp.route("/badges")
